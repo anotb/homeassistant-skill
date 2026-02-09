@@ -8,7 +8,7 @@ license: MIT
 compatibility: Requires curl and jq. Network access to Home Assistant instance.
 metadata:
   author: anotb
-  version: "1.0.0"
+  version: "2.0.0"
 ---
 
 # Home Assistant Skill
@@ -425,6 +425,30 @@ curl -s -X POST "$HA_URL/api/services/input_datetime/set_datetime" \
   -d '{"entity_id": "input_datetime.alarm_time", "time": "07:30:00"}'
 ```
 
+## Calendar
+
+```bash
+# List all calendars
+curl -s "$HA_URL/api/calendars" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[].entity_id'
+
+# Get upcoming events (next 7 days)
+curl -s "$HA_URL/api/calendars/calendar.personal?start=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)&end=$(date -u -v+7d +%Y-%m-%dT%H:%M:%S.000Z)" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  | jq '[.[] | {summary: .summary, start: .start.dateTime, end: .end.dateTime}]'
+```
+
+## Text-to-Speech
+
+```bash
+curl -s -X POST "$HA_URL/api/services/tts/speak" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "tts.google_en", "media_player_entity_id": "media_player.living_room_speaker", "message": "Dinner is ready"}'
+```
+
+Replace `tts.google_en` with your TTS entity and `media_player.living_room_speaker` with the target speaker.
+
 ## Call Any Service
 
 The general pattern for any HA service:
@@ -434,6 +458,18 @@ curl -s -X POST "$HA_URL/api/services/{domain}/{service}" \
   -H "Authorization: Bearer $HA_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "domain.entity_name", ...}'
+```
+
+### Batch operations
+
+Control multiple entities in one call by passing an array of entity IDs:
+
+```bash
+# Turn off all living room lights at once
+curl -s -X POST "$HA_URL/api/services/light/turn_off" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": ["light.living_room", "light.living_room_lamp", "light.living_room_ceiling"]}'
 ```
 
 ## Error Handling
@@ -465,6 +501,18 @@ HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
 | 404 | Entity or endpoint not found |
 | 405 | Method not allowed (wrong HTTP method) |
 | 503 | Home Assistant is starting up or unavailable |
+
+## Response Format
+
+Service calls return an array of state objects for affected entities:
+
+```json
+[{"entity_id": "light.living_room", "state": "on", "attributes": {...}, "last_changed": "..."}]
+```
+
+- Successful call with no state change: returns `[]` (empty array)
+- State read (`/api/states/...`): returns a single state object
+- Errors: returns `{"message": "..."}` with an HTTP error code
 
 ## Template Evaluation
 
@@ -546,6 +594,18 @@ curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
 # Temperature sensors
 curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
   | jq -r '.[] | select(.entity_id | startswith("sensor.")) | select(.attributes.device_class == "temperature") | "\(.attributes.friendly_name // .entity_id): \(.state)\(.attributes.unit_of_measurement // "")"'
+
+# Climate summary (all thermostats)
+curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[] | select(.entity_id | startswith("climate.")) | "\(.attributes.friendly_name // .entity_id): \(.state), current: \(.attributes.current_temperature)°, target: \(.attributes.temperature)°"'
+
+# Lock status
+curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[] | select(.entity_id | startswith("lock.")) | "\(.attributes.friendly_name // .entity_id): \(.state)"'
+
+# Who is home
+curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[] | select(.entity_id | startswith("person.")) | "\(.attributes.friendly_name // .entity_id): \(.state)"'
 ```
 
 ## Entity Domains
@@ -555,17 +615,28 @@ curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
 | `switch.*` | Smart plugs, generic switches |
 | `light.*` | Lights (Hue, LIFX, etc.) |
 | `scene.*` | Pre-configured scenes |
+| `script.*` | Reusable action sequences |
 | `automation.*` | Automations |
 | `climate.*` | Thermostats, AC units |
-| `cover.*` | Blinds, garage doors |
+| `cover.*` | Blinds, garage doors, gates |
 | `lock.*` | Smart locks |
 | `fan.*` | Fans, ventilation |
 | `media_player.*` | TVs, speakers, streaming devices |
 | `vacuum.*` | Robot vacuums |
 | `alarm_control_panel.*` | Security systems |
+| `notify.*` | Notification targets |
+| `person.*` | People / presence tracking |
+| `device_tracker.*` | Device locations |
+| `weather.*` | Weather conditions and forecasts |
+| `calendar.*` | Calendar events |
+| `tts.*` | Text-to-speech engines |
 | `sensor.*` | Temperature, humidity, power, etc. |
 | `binary_sensor.*` | Motion, door/window, presence |
 | `input_boolean.*` | Virtual toggles |
+| `input_number.*` | Numeric sliders |
+| `input_select.*` | Dropdown selectors |
+| `input_text.*` | Text inputs |
+| `input_datetime.*` | Date/time inputs |
 
 ## Notes
 

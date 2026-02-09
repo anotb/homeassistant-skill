@@ -44,6 +44,7 @@ export HA_TOKEN=your-long-lived-access-token
 | Switches | Turn on, off, toggle |
 | Lights | On/off, brightness, color, color temp |
 | Scenes | Activate scenes |
+| Scripts | List, run, run with variables |
 | Automations | Trigger, enable, disable |
 | Climate | Set temperature, HVAC mode |
 | Covers | Open, close, set position (blinds, garage) |
@@ -52,7 +53,16 @@ export HA_TOKEN=your-long-lived-access-token
 | Media players | Play, pause, volume |
 | Vacuum | Start, return to dock |
 | Alarm | Arm, disarm (with safety confirmation) |
+| Notifications | Send to mobile devices, list targets |
+| Person / Presence | Who is home, device locations |
+| Weather | Current conditions, daily/hourly forecast |
+| Input helpers | Boolean, number, select, text, datetime |
+| Calendar | List calendars, upcoming events |
+| Text-to-Speech | Speak messages on media players |
 | Sensors | Read temperature, humidity, power, etc. |
+| Areas & Floors | Discover areas, floors, entities by area |
+| History | Entity state history, logbook |
+| Templates | Evaluate Jinja2 templates server-side |
 
 ## Usage Examples
 
