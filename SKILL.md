@@ -21,6 +21,17 @@ Set environment variables:
 - `HA_URL` — Your Home Assistant URL (e.g., `http://10.0.0.10:8123`)
 - `HA_TOKEN` — Long-lived access token (create in HA → Profile → Long-Lived Access Tokens)
 
+## Safety Rules
+
+**Always confirm with the user before performing these actions:**
+- **Locks** — locking or unlocking any lock
+- **Alarm panels** — arming or disarming
+- **Garage doors** — opening or closing (`cover.*` with `device_class: garage`)
+- **Security automations** — disabling automations related to security or safety
+- **Covers** — opening or closing covers that control physical access (gates, barriers)
+
+Never act on security-sensitive devices without explicit user confirmation.
+
 ## Entity Discovery
 
 ### List all entities
@@ -162,6 +173,8 @@ curl -s -X POST "$HA_URL/api/services/climate/set_hvac_mode" \
 
 ## Covers (Blinds, Garage Doors)
 
+**Safety:** Confirm with the user before opening/closing garage doors or gates.
+
 ```bash
 # Open
 curl -s -X POST "$HA_URL/api/services/cover/open_cover" \
@@ -276,6 +289,36 @@ curl -s -X POST "$HA_URL/api/services/{domain}/{service}" \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "domain.entity_name", ...}'
 ```
+
+## Error Handling
+
+### Check API connectivity
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" "$HA_URL/api/" \
+  -H "Authorization: Bearer $HA_TOKEN"
+# Expect: 200
+```
+
+### Verify entity exists before acting
+
+```bash
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+  "$HA_URL/api/states/light.nonexistent" \
+  -H "Authorization: Bearer $HA_TOKEN")
+# 200 = exists, 404 = not found
+```
+
+### HTTP status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success |
+| 400 | Bad request (malformed JSON or invalid service data) |
+| 401 | Unauthorized (bad or missing token) |
+| 404 | Entity or endpoint not found |
+| 405 | Method not allowed (wrong HTTP method) |
+| 503 | Home Assistant is starting up or unavailable |
 
 ## Dashboard Overview
 

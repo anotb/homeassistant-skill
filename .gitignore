@@ -1,0 +1,5 @@
+.env
+.env.local
+.env.production
+*.token
+.DS_Store
