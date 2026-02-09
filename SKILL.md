@@ -8,7 +8,7 @@ license: MIT
 compatibility: Requires curl and jq. Network access to Home Assistant instance.
 metadata:
   author: anotb
-  version: "2.0.2"
+  version: "2.0.3"
 ---
 
 # Home Assistant Skill
