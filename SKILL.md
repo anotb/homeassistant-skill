@@ -66,6 +66,42 @@ in any domain.
 curl -s "$HA_URL/api/states/ENTITY_ID" -H "Authorization: Bearer $HA_TOKEN"
 ```
 
+### Area & Floor Discovery
+
+Use the template API to query areas, floors, and labels.
+
+```bash
+# List all areas
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{{ areas() }}"}'
+
+# Entities in a specific area
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{{ area_entities(\"kitchen\") }}"}'
+
+# Only lights in an area
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{{ area_entities(\"kitchen\") | select(\"match\", \"light.\") | list }}"}'
+
+# Find which area an entity belongs to
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{{ area_name(\"light.kitchen\") }}"}'
+
+# List all floors and their areas
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{% for floor in floors() %}{{ floor }}: {{ floor_areas(floor) }}\n{% endfor %}"}'
+```
+
 ## Switches
 
 ```bash
@@ -319,6 +355,41 @@ HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
 | 404 | Entity or endpoint not found |
 | 405 | Method not allowed (wrong HTTP method) |
 | 503 | Home Assistant is starting up or unavailable |
+
+## Template Evaluation
+
+The `/api/template` endpoint evaluates Jinja2 templates server-side. Useful for computed queries.
+
+```bash
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "TEMPLATE_STRING"}'
+```
+
+### Examples
+
+```bash
+# Count entities by domain
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{{ states.light | list | count }} lights"}'
+
+# Get entity state in a template
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{{ states(\"light.living_room\") }}"}'
+
+# List all entities that are "on"
+curl -s -X POST "$HA_URL/api/template" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"template": "{{ states | selectattr(\"state\", \"eq\", \"on\") | map(attribute=\"entity_id\") | list }}"}'
+```
+
+Available template functions: `states()`, `is_state()`, `state_attr()`, `areas()`, `area_entities()`, `area_name()`, `floors()`, `floor_areas()`, `labels()`, `label_entities()`, `devices()`, `device_entities()`, `now()`, `relative_time()`.
 
 ## Dashboard Overview
 
