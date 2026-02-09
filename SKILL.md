@@ -315,6 +315,40 @@ curl -s -X POST "$HA_URL/api/services/alarm_control_panel/alarm_disarm" \
   -d '{"entity_id": "alarm_control_panel.home", "code": "1234"}'
 ```
 
+## Person & Presence
+
+```bash
+# Who is home?
+curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[] | select(.entity_id | startswith("person.")) | "\(.attributes.friendly_name // .entity_id): \(.state)"'
+
+# Device tracker locations
+curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[] | select(.entity_id | startswith("device_tracker.")) | "\(.entity_id): \(.state)"'
+```
+
+States: `home`, `not_home`, or a zone name.
+
+## Weather
+
+```bash
+# Current weather
+curl -s "$HA_URL/api/states/weather.home" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq '{state: .state, temperature: .attributes.temperature, humidity: .attributes.humidity, wind_speed: .attributes.wind_speed}'
+
+# Get forecast (daily)
+curl -s -X POST "$HA_URL/api/services/weather/get_forecasts" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "weather.home", "type": "daily"}'
+
+# Get forecast (hourly)
+curl -s -X POST "$HA_URL/api/services/weather/get_forecasts" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "weather.home", "type": "hourly"}'
+```
+
 ## Call Any Service
 
 The general pattern for any HA service:
@@ -390,6 +424,35 @@ curl -s -X POST "$HA_URL/api/template" \
 ```
 
 Available template functions: `states()`, `is_state()`, `state_attr()`, `areas()`, `area_entities()`, `area_name()`, `floors()`, `floor_areas()`, `labels()`, `label_entities()`, `devices()`, `device_entities()`, `now()`, `relative_time()`.
+
+## History & Logbook
+
+### Entity state history
+
+```bash
+# Last 24 hours for a specific entity
+curl -s "$HA_URL/api/history/period?filter_entity_id=sensor.temperature" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  | jq '.[0] | [.[] | {state: .state, last_changed: .last_changed}]'
+
+# Specific time range (ISO 8601)
+curl -s "$HA_URL/api/history/period/2025-01-15T00:00:00Z?end_time=2025-01-15T23:59:59Z&filter_entity_id=sensor.temperature" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  | jq '.[0]'
+```
+
+### Logbook
+
+```bash
+# Recent logbook entries
+curl -s "$HA_URL/api/logbook" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq '.[:10]'
+
+# Logbook for a specific entity
+curl -s "$HA_URL/api/logbook?entity=light.living_room" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  | jq '.[:10] | [.[] | {name: .name, message: .message, when: .when}]'
+```
 
 ## Dashboard Overview
 
