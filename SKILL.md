@@ -161,6 +161,26 @@ curl -s -X POST "$HA_URL/api/services/scene/turn_on" \
   -d '{"entity_id": "scene.movie_time"}'
 ```
 
+## Scripts
+
+```bash
+# List all scripts
+curl -s "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[] | select(.entity_id | startswith("script.")) | "\(.entity_id): \(.state)"'
+
+# Run a script
+curl -s -X POST "$HA_URL/api/services/script/turn_on" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "script.bedtime_routine"}'
+
+# Run a script with variables
+curl -s -X POST "$HA_URL/api/services/script/bedtime_routine" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"variables": {"brightness": 20, "delay_minutes": 5}}'
+```
+
 ## Automations
 
 ```bash
@@ -315,6 +335,28 @@ curl -s -X POST "$HA_URL/api/services/alarm_control_panel/alarm_disarm" \
   -d '{"entity_id": "alarm_control_panel.home", "code": "1234"}'
 ```
 
+## Notifications
+
+```bash
+# List available notification targets
+curl -s "$HA_URL/api/services" -H "Authorization: Bearer $HA_TOKEN" \
+  | jq -r '.[] | select(.domain == "notify") | .services | keys[]' | sort
+
+# Send a notification to a mobile device
+curl -s -X POST "$HA_URL/api/services/notify/mobile_app_phone" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Front door opened", "title": "Home Alert"}'
+
+# Send to all devices (default notify service)
+curl -s -X POST "$HA_URL/api/services/notify/notify" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "System alert", "title": "Home Assistant"}'
+```
+
+Replace `mobile_app_phone` with the actual service name from the list command.
+
 ## Person & Presence
 
 ```bash
@@ -347,6 +389,40 @@ curl -s -X POST "$HA_URL/api/services/weather/get_forecasts" \
   -H "Authorization: Bearer $HA_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "weather.home", "type": "hourly"}'
+```
+
+## Input Helpers
+
+```bash
+# Toggle an input boolean
+curl -s -X POST "$HA_URL/api/services/input_boolean/toggle" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "input_boolean.guest_mode"}'
+
+# Set input number
+curl -s -X POST "$HA_URL/api/services/input_number/set_value" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "input_number.target_temperature", "value": 72}'
+
+# Set input select
+curl -s -X POST "$HA_URL/api/services/input_select/select_option" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "input_select.house_mode", "option": "Away"}'
+
+# Set input text
+curl -s -X POST "$HA_URL/api/services/input_text/set_value" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "input_text.welcome_message", "value": "Welcome home!"}'
+
+# Set input datetime
+curl -s -X POST "$HA_URL/api/services/input_datetime/set_datetime" \
+  -H "Authorization: Bearer $HA_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id": "input_datetime.alarm_time", "time": "07:30:00"}'
 ```
 
 ## Call Any Service
