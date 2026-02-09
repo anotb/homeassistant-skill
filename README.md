@@ -6,6 +6,8 @@ Works with [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenC
 
 [![ClawdHub](https://img.shields.io/badge/ClawdHub-homeassistant--skill-blue)](https://clawhub.ai/skills/homeassistant-skill)
 
+Part of [unsol.dev](https://unsol.dev)
+
 ## Prerequisites
 
 - Home Assistant instance with API access
