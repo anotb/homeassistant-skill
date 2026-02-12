@@ -5,10 +5,9 @@ description: >
   including lights, climate, locks, presence, weather, calendars, notifications,
   scripts, and more. Use when the user asks about their smart home, devices, or automations.
 license: MIT
+homepage: https://github.com/anotb/homeassistant-skill
 compatibility: Requires curl and jq. Network access to Home Assistant instance.
-metadata:
-  author: anotb
-  version: "2.0.3"
+metadata: {"author": "anotb", "version": "2.1.0", "openclaw": {"requires": {"env": ["HA_URL", "HA_TOKEN"], "bins": ["curl", "jq"]}, "primaryEnv": "HA_TOKEN"}}
 ---
 
 # Home Assistant Skill

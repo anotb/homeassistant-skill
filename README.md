@@ -2,9 +2,10 @@
 
 An AI agent skill for controlling Home Assistant devices and automations through natural language. 25 entity domains including lights, climate, locks, presence, weather, calendars, notifications, and more — all via the HA REST API.
 
-Works with [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenClaw](https://github.com/openclaw/openclaw), [Cursor](https://cursor.com), and any tool supporting the [Agent Skills](https://github.com/anthropics/skills) standard.
+Works with [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [OpenClaw](https://github.com/openclaw/openclaw), [Cursor](https://cursor.com), and any tool supporting the [SKILL.md](https://agentskills.io) standard.
 
-[![ClawdHub](https://img.shields.io/badge/ClawdHub-homeassistant--skill-blue)](https://clawhub.ai/skills/homeassistant-skill)
+[![ClawHub](https://img.shields.io/badge/ClawHub-homeassistant--skill-blue)](https://clawhub.ai/skills/homeassistant-skill)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Part of [unsol.dev](https://unsol.dev)
 
