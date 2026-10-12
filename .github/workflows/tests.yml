@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            python: '3.10'
+            websockets: '15.0.1'
+          - os: windows-latest
+            python: '3.13'
+            websockets: '17.2'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install websockets==${{ matrix.websockets }}
+      - run: python -m unittest discover -s tests -v
+      - run: python -m compileall -q scripts tests
+      - run: git diff --check
