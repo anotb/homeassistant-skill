@@ -23,6 +23,9 @@ Release work does not require a Home Assistant token or access to a live home.
    `requirements-websocket.txt`, `references/` and `scripts/*.py`. Exclude `.git`,
    caches, environments, private reports and credentials. Tests and CI remain in
    GitHub; the installed bundle contains runtime files and their documentation.
+   Current ClawHub strips the local `skill-card.md` and generates its own card.
+   Compare the other published files exactly and inspect the generated card for
+   correct version, license, requirements and risk disclosures.
 7. Preview the exact staged bundle, then publish it:
 
    ```bash
