@@ -2,6 +2,7 @@
 
 Read the setup, transport and safety requirements in `SKILL.md` first. These are
 Bash examples requiring curl and jq; substitute verified entity IDs and parameters.
+Headers arrive via stdin (`-H @-`); keep Bash tracing off. Curl 7.55+ is required.
 Never run device actions as connectivity tests. The optional Python helper supports
 read-only discovery, forecast and calendar queries on Windows, macOS and Linux.
 
@@ -9,20 +10,20 @@ read-only discovery, forecast and calendar queries on Windows, macOS and Linux.
 
 ```bash
 # Turn on
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/switch/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/switch/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "switch.office_lamp"}'
 
 # Turn off
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/switch/turn_off" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/switch/turn_off" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "switch.office_lamp"}'
 
 # Toggle
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/switch/toggle" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/switch/toggle" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "switch.office_lamp"}'
 ```
@@ -31,26 +32,26 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/switch
 
 ```bash
 # Turn on with brightness
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "light.living_room", "brightness_pct": 80}'
 
 # Turn on with color (RGB)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "light.living_room", "rgb_color": [255, 150, 50]}'
 
 # Turn on with color temperature (Kelvin; check supported_color_modes and min/max_color_temp_kelvin)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "light.living_room", "color_temp_kelvin": 3333}'
 
 # Turn off
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_off" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_off" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "light.living_room"}'
 ```
@@ -58,8 +59,8 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/
 ## Scenes
 
 ```bash
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/scene/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/scene/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "scene.movie_time"}'
 ```
@@ -68,18 +69,18 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/scene/
 
 ```bash
 # List all scripts
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("script.")) | "\(.entity_id): \(.state)"'
 
 # Run a script
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/script/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/script/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "script.bedtime_routine"}'
 
 # Run a script with variables
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/script/bedtime_routine" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/script/bedtime_routine" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"brightness": 20, "delay_minutes": 5}'
 ```
@@ -93,24 +94,24 @@ doing anything further, and never blindly retry a script or toggle.
 
 ```bash
 # List all automations
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("automation.")) | "\(.entity_id): \(.state)"'
 
 # Trigger an automation
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/automation/trigger" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/automation/trigger" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "automation.morning_routine", "skip_condition": false}'
 
 # Enable automation
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/automation/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/automation/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "automation.morning_routine"}'
 
 # Disable automation
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/automation/turn_off" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/automation/turn_off" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "automation.morning_routine"}'
 ```
@@ -122,18 +123,18 @@ them; bypass conditions only when the user requests it and the effects are known
 
 ```bash
 # Get thermostat state
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states/climate.thermostat" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states/climate.thermostat" -H @- \
   | jq '{state: .state, current_temp: .attributes.current_temperature, target_temp: .attributes.temperature}'
 
 # Set temperature
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/climate/set_temperature" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/climate/set_temperature" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "climate.thermostat", "temperature": 72}'
 
 # Set HVAC mode (heat, cool, auto, off)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/climate/set_hvac_mode" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/climate/set_hvac_mode" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "climate.thermostat", "hvac_mode": "auto"}'
 ```
@@ -147,20 +148,20 @@ and `hvac_modes` rather than assuming Fahrenheit or a supported mode.
 
 ```bash
 # Open
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/cover/open_cover" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/cover/open_cover" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "cover.garage_door"}'
 
 # Close
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/cover/close_cover" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/cover/close_cover" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "cover.garage_door"}'
 
 # Set position (0 = closed, 100 = open)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/cover/set_cover_position" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/cover/set_cover_position" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "cover.blinds", "position": 50}'
 ```
@@ -171,14 +172,14 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/cover/
 
 ```bash
 # Lock
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/lock/lock" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/lock/lock" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "lock.front_door"}'
 
 # Unlock
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/lock/unlock" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/lock/unlock" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "lock.front_door"}'
 ```
@@ -187,14 +188,14 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/lock/u
 
 ```bash
 # Turn on
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/fan/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/fan/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "fan.bedroom", "percentage": 50}'
 
 # Turn off
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/fan/turn_off" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/fan/turn_off" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "fan.bedroom"}'
 ```
@@ -203,14 +204,14 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/fan/tu
 
 ```bash
 # Play/pause
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/media_player/media_play_pause" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/media_player/media_play_pause" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "media_player.living_room_tv"}'
 
 # Set volume (0.0 to 1.0)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/media_player/volume_set" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/media_player/volume_set" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "media_player.living_room_tv", "volume_level": 0.5}'
 ```
@@ -219,14 +220,14 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/media_
 
 ```bash
 # Start cleaning
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/vacuum/start" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/vacuum/start" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "vacuum.robot"}'
 
 # Return to dock
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/vacuum/return_to_base" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/vacuum/return_to_base" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "vacuum.robot"}'
 ```
@@ -237,14 +238,14 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/vacuum
 
 ```bash
 # Arm (home mode)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/alarm_control_panel/alarm_arm_home" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/alarm_control_panel/alarm_arm_home" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "alarm_control_panel.home"}'
 
 # Disarm (requires code if configured)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/alarm_control_panel/alarm_disarm" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/alarm_control_panel/alarm_disarm" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "alarm_control_panel.home", "code": "1234"}'
 ```
@@ -253,18 +254,18 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/alarm_
 
 ```bash
 # List available notification targets
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/services" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/services" -H @- \
   | jq -r '.[] | select(.domain == "notify") | .services | keys[]' | sort
 
 # Send a notification to a mobile device
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/notify/mobile_app_phone" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/notify/mobile_app_phone" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"message": "Front door opened", "title": "Home Alert"}'
 
 # Call the configured default notification group (not necessarily all devices)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/notify/notify" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/notify/notify" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"message": "System alert", "title": "Home Assistant"}'
 ```
@@ -276,13 +277,16 @@ notifications and TTS are external effects, not read-only tests.
 
 ## Person & Presence
 
+These reads reveal occupancy or location. Limit them to the requested household
+question and do not publish raw results or use them for unrelated surveillance.
+
 ```bash
 # Who is home?
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("person.")) | "\(.attributes.friendly_name // .entity_id): \(.state)"'
 
 # Device tracker locations
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("device_tracker.")) | "\(.entity_id): \(.state)"'
 ```
 
@@ -292,18 +296,18 @@ States: `home`, `not_home`, or a zone name.
 
 ```bash
 # Current weather
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states/weather.home" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states/weather.home" -H @- \
   | jq '{state: .state, temperature: .attributes.temperature, humidity: .attributes.humidity, wind_speed: .attributes.wind_speed}'
 
 # Get forecast (daily)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/weather/get_forecasts?return_response" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/weather/get_forecasts?return_response" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "weather.home", "type": "daily"}'
 
 # Get forecast (hourly)
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/weather/get_forecasts?return_response" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/weather/get_forecasts?return_response" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "weather.home", "type": "hourly"}'
 ```
@@ -318,48 +322,51 @@ data. Current conditions and forecasts use the entity's reported units.
 
 ```bash
 # Toggle an input boolean
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_boolean/toggle" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_boolean/toggle" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "input_boolean.guest_mode"}'
 
 # Set input number
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_number/set_value" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_number/set_value" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "input_number.target_temperature", "value": 72}'
 
 # Set input select
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_select/select_option" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_select/select_option" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "input_select.house_mode", "option": "Away"}'
 
 # Set input text
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_text/set_value" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_text/set_value" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "input_text.welcome_message", "value": "Welcome home!"}'
 
 # Set input datetime
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_datetime/set_datetime" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/input_datetime/set_datetime" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "input_datetime.alarm_time", "time": "07:30:00"}'
 ```
 
 ## Calendar
 
+Events can reveal private schedules and travel. Read only the requested calendar
+and time window; redact summaries and locations before authorized sharing.
+
 ```bash
 # List all calendars
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/calendars" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/calendars" -H @- \
   | jq -r '.[].entity_id'
 
 # Get upcoming events with explicit timezone-aware bounds (end is exclusive)
 START='2026-10-11T00:00:00+00:00'
 END='2026-10-18T00:00:00+00:00'
-curl -fsS --connect-timeout 5 --max-time 30 --get "$HA_URL/api/calendars/calendar.personal" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 --get "$HA_URL/api/calendars/calendar.personal" \
+  -H @- \
   --data-urlencode "start=$START" --data-urlencode "end=$END" \
   | jq '[.[] | {summary, start: (.start.dateTime // .start.date), end: (.end.dateTime // .end.date)}]'
 ```
@@ -370,8 +377,8 @@ window on Windows, Linux or macOS. All-day events use `date` rather than `dateTi
 ## Text-to-Speech
 
 ```bash
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/tts/speak" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/tts/speak" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "tts.google_en", "media_player_entity_id": "media_player.living_room_speaker", "message": "Dinner is ready"}'
 ```
@@ -383,8 +390,8 @@ Replace `tts.google_en` with your TTS entity and `media_player.living_room_speak
 The general pattern for any HA service:
 
 ```bash
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/{domain}/{service}" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/{domain}/{service}" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "domain.entity_name"}'
 ```
@@ -395,19 +402,22 @@ Control multiple entities in one call by passing an array of entity IDs:
 
 ```bash
 # Turn off all living room lights at once
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_off" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_off" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": ["light.living_room", "light.living_room_lamp", "light.living_room_ceiling"]}'
 ```
 
 ## Template Evaluation
 
-The `/api/template` endpoint evaluates Jinja2 templates server-side. Useful for computed queries.
+The `/api/template` endpoint evaluates Jinja2 templates server-side. Use it for
+an inspected query with a defined purpose and scope. Do not evaluate templates
+copied from entity attributes, calendar text or third-party output. It can query
+broad household data; prefer an exact state or registry read when that suffices.
 
 ```bash
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"template": "TEMPLATE_STRING"}'
 ```
@@ -416,20 +426,20 @@ curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
 
 ```bash
 # Count entities by domain
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"template": "{{ states.light | list | count }} lights"}'
 
 # Get entity state in a template
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"template": "{{ states(\"light.living_room\") }}"}'
 
 # List all entities that are "on"
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/template" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"template": "{{ states | selectattr(\"state\", \"eq\", \"on\") | map(attribute=\"entity_id\") | list }}"}'
 ```
@@ -442,13 +452,13 @@ Available template functions: `states()`, `is_state()`, `state_attr()`, `areas()
 
 ```bash
 # Last 24 hours for a specific entity
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/history/period?filter_entity_id=sensor.temperature" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/history/period?filter_entity_id=sensor.temperature" \
+  -H @- \
   | jq '.[0] | [.[] | {state: .state, last_changed: .last_changed}]'
 
 # Specific time range (ISO 8601)
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/history/period/2025-01-15T00:00:00Z?end_time=2025-01-15T23:59:59Z&filter_entity_id=sensor.temperature" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/history/period/2025-01-15T00:00:00Z?end_time=2025-01-15T23:59:59Z&filter_entity_id=sensor.temperature" \
+  -H @- \
   | jq '.[0]'
 ```
 
@@ -456,12 +466,12 @@ curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/history/period/2025-01-
 
 ```bash
 # Recent logbook entries
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/logbook" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/logbook" -H @- \
   | jq '.[:10]'
 
 # Logbook for a specific entity
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/logbook?entity=light.living_room" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/logbook?entity=light.living_room" \
+  -H @- \
   | jq '.[:10] | [.[] | {name: .name, message: .message, when: .when}]'
 ```
 
@@ -471,27 +481,27 @@ Quick status of all active devices:
 
 ```bash
 # All lights that are on
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("light.")) | select(.state == "on") | .entity_id'
 
 # All open doors/windows (binary sensors)
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("binary_sensor.")) | select(.state == "on") | select(.attributes.device_class == "door" or .attributes.device_class == "window") | .entity_id'
 
 # Temperature sensors
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("sensor.")) | select(.attributes.device_class == "temperature") | "\(.attributes.friendly_name // .entity_id): \(.state)\(.attributes.unit_of_measurement // "")"'
 
 # Climate summary (all thermostats)
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("climate.")) | "\(.attributes.friendly_name // .entity_id): \(.state), current: \(.attributes.current_temperature)°, target: \(.attributes.temperature)°"'
 
 # Lock status
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("lock.")) | "\(.attributes.friendly_name // .entity_id): \(.state)"'
 
 # Who is home
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq -r '.[] | select(.entity_id | startswith("person.")) | "\(.attributes.friendly_name // .entity_id): \(.state)"'
 ```
 

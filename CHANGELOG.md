@@ -14,7 +14,9 @@
   limits, credential redaction, deadlines and no automatic retries in readers.
 - Document native MCP and direct API choices, permissions, unsupported commands
   and the distinction between mock tests and frontend verification.
-- Add 58 tests and a Windows/Linux CI matrix for Python and WebSocket compatibility.
+- Keep curl bearer headers out of process arguments using stdin; document token
+  authority, household privacy and inspected template queries.
+- Add 60 tests and a Windows/Linux CI matrix for Python and WebSocket compatibility.
 
 OpenClaw's existing environment and curl/jq dependency gates remain in place.
 Python 3.10+ readers can run standalone. Optional WebSocket reads require

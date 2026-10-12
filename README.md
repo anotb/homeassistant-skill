@@ -51,6 +51,12 @@ in URLs, redirects and malformed settings. Prefer verified HTTPS. Local HTTP sen
 the token without encryption. Never paste tokens into chat, commit `.env` files,
 enable shell tracing, or put tokens in command arguments.
 
+The token inherits its HA user's permissions; its theft can expose household
+data and allow device actions. Reader allowlists do not reduce the token's
+server-side permissions. Use an existing account with suitable access and keep
+presence, location, calendar and history results private unless sharing is
+authorized. The Bash examples pass headers through stdin and require curl 7.55+.
+
 The shell examples use Bash. On Windows the read-only helper works with `python`:
 
 ```powershell
@@ -123,13 +129,13 @@ permissions. Schema validation never executes the supplied actions.
 
 ```bash
 # "Turn on the office light at 80%"
-curl -fsS --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
-  -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/light/turn_on" \
+  -H @- \
   -H "Content-Type: application/json" \
   -d '{"entity_id": "light.office", "brightness_pct": 80}'
 
 # "What's the temperature?"
-curl -fsS --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H "Authorization: Bearer $HA_TOKEN" \
+printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 "$HA_URL/api/states" -H @- \
   | jq '.[] | select(.attributes.device_class == "temperature") | {name: .attributes.friendly_name, temp: .state, unit: .attributes.unit_of_measurement}'
 ```
 
@@ -194,6 +200,8 @@ does not establish CLI authentication or every optional integration's support.
 The maintained API links and action safety requirements are in [SKILL.md](SKILL.md).
 Release history is in [CHANGELOG.md](CHANGELOG.md). Maintainers should follow
 [RELEASING.md](RELEASING.md) to verify and publish matching GitHub and ClawHub versions.
+Credential scope, private data and the prior ClawHub findings are explained in
+[SECURITY.md](SECURITY.md).
 
 ## License
 
