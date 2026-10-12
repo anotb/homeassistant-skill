@@ -18,10 +18,11 @@ Release work does not require a Home Assistant token or access to a live home.
    Commit the update, push `main`, and wait for the CI matrix to pass.
 5. Create a GitHub release with tag `vVERSION` targeting that commit and use the
    changelog entry for its notes. Never move an existing release tag.
-6. Stage a bundle containing `SKILL.md`, `LICENSE`, `README.md`, `CHANGELOG.md`, `SECURITY.md`,
+6. Stage a bundle containing `SKILL.md`, `skill-card.md`, `LICENSE`, `README.md`,
+   `CHANGELOG.md`, `SECURITY.md`, `RELEASING.md`,
    `requirements-websocket.txt`, `references/` and `scripts/*.py`. Exclude `.git`,
-   caches, environments, private reports and credentials. Tests and release/CI
-   instructions remain in GitHub; the installed bundle contains runtime files.
+   caches, environments, private reports and credentials. Tests and CI remain in
+   GitHub; the installed bundle contains runtime files and their documentation.
 7. Preview the exact staged bundle, then publish it:
 
    ```bash
