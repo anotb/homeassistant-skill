@@ -243,11 +243,21 @@ printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --c
   -H "Content-Type: application/json" \
   -d '{"entity_id": "alarm_control_panel.home"}'
 
-# Disarm (requires code if configured)
+# Disarm using an existing private payload for this authorized action
 printf 'Authorization: Bearer %s\n' "$HA_TOKEN" | curl -q -fsS --noproxy '*' --connect-timeout 5 --max-time 30 -X POST "$HA_URL/api/services/alarm_control_panel/alarm_disarm" \
   -H @- \
   -H "Content-Type: application/json" \
-  -d '{"entity_id": "alarm_control_panel.home", "code": "1234"}'
+  -d @/path/to/private/alarm-disarm.json
+```
+
+The private payload has the following shape; `USER_SUPPLIED_CODE` is a placeholder,
+not a default PIN. Supply the configured code privately, keep the payload outside
+the repository with access limited to its owner, and do not print it or put its
+contents in command arguments. Omit `code` only when the installed schema permits.
+Never change the alarm's PIN or security settings to make an example work.
+
+```json
+{"entity_id": "alarm_control_panel.home", "code": "USER_SUPPLIED_CODE"}
 ```
 
 ## Notifications

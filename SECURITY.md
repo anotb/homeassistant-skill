@@ -54,6 +54,8 @@ behavior, not evidence by itself of credential theft or a malware verdict.
 | Template query scope | Legitimate powerful read capability. Require inspected queries; avoid external template strings and unnecessary enumeration. |
 | Notifications/TTS | Legitimate outbound effects. Verify recipients, scope and message; no diagnostic execution. |
 | Broad activation wording | Restrict the description to inspecting or operating an existing HA installation. |
+| Plaintext HTTP warning | HTTPS is preferred and verified. Retain trusted LAN HTTP with an explicit disclosure; do not change users' network/security setup during diagnosis. |
+| Example alarm PIN | Remove the common hardcoded PIN. The disarm action remains documented with a privately supplied payload, keeping the configured code out of command arguments. |
 
 The changes retain useful functionality. They do not attempt to hide capabilities
 from scanners or guarantee a `Pass`. Each new published artifact receives its own
